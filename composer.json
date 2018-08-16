@@ -1,0 +1,29 @@
+{
+    "name": "1FF/laravel-mongodb-cache",
+    "description": "A mongodb cache driver for laravel",
+    "type": "library",
+    "require": {
+        "jenssegers/mongodb": "3.*",
+        "illuminate/cache": "5.*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vihren Ganev",
+            "email": "vihren@appsforfit.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "ForFit\\Mongodb\\Cache\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ForFit\\Mongodb\\Cache\\ServiceProvider"
+            ]
+        }
+    }
+}
