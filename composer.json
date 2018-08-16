@@ -1,5 +1,5 @@
 {
-    "name": "1FF/laravel-mongodb-cache",
+    "name": "1ff/laravel-mongodb-cache",
     "description": "A mongodb cache driver for laravel",
     "type": "library",
     "require": {
