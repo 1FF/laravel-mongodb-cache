@@ -12,7 +12,7 @@ class Store extends DatabaseStore
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string|array  $key
+     * @param  string $key
      * @return mixed
      */
     public function get($key)
@@ -35,9 +35,21 @@ class Store extends DatabaseStore
         $expiration = ($this->getTime() + (int) ($minutes * 60)) * 1000;
 
         return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
-            ['value' => $this->encodeForSave($value), 'expiration' => new UTCDateTime($expiration)],
-            ['upsert' => true]
+                ['value' => $this->encodeForSave($value), 'expiration' => new UTCDateTime($expiration)], ['upsert' => true]
         );
+    }
+
+    /**
+     * Retrieve an item's expiration time from the cache by key.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function getExpiration($key)
+    {
+        $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
+
+        return $cacheData ? $cacheData['expiration']->toDateTime()->getTimestamp() : null;
     }
 
     /**
@@ -62,7 +74,7 @@ class Store extends DatabaseStore
 
         $newValue = $callback($currentValue, $value);
 
-        if ($this->put($key, $newValue)) {
+        if ($this->put($key, $newValue, $this->getExpiration($key))) {
             return $newValue;
         }
 
