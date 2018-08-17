@@ -4,6 +4,7 @@ namespace ForFit\Mongodb\Cache\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use \MongoDB\Driver\ReadPreference;
 
 /**
  * Create indexes for the cache collection
@@ -50,6 +51,8 @@ class MongodbCacheIndex extends Command
                     'background' => true
                 ]
             ]
+        ], [
+            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
         ]);
     }
 }

@@ -3,8 +3,8 @@
 namespace ForFit\Mongodb\Cache\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use \MongoDB\Driver\ReadPreference;
 
 /**
  * Drop the indexes created by MongodbCacheIndex
@@ -35,9 +35,18 @@ class MongodbCacheDropIndex extends Command
     {
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
 
-        Schema::connection('mongodb')->table($cacheCollectionName, function (Blueprint $collection) {
-            $collection->dropIndex('key');
-            $collection->dropIndex('expiration_ttl');
-        });
+        DB::connection('mongodb')->getMongoDB()->command([
+            'dropIndexes' => $cacheCollectionName,
+            'index' => 'key_1'
+        ], [
+            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+        ]);
+
+        DB::connection('mongodb')->getMongoDB()->command([
+            'dropIndexes' => $cacheCollectionName,
+            'index' => 'expiration_ttl_1'
+        ], [
+            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+        ]);
     }
 }
