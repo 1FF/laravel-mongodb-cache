@@ -49,7 +49,13 @@ class Store extends DatabaseStore
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? $cacheData['expiration']->toDateTime()->getTimestamp() : null;
+        if (!$cacheData) {
+            return null;
+        }
+
+        $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
+
+        return ($expirationSeconds - time()) * 60;
     }
 
     /**
