@@ -5,6 +5,7 @@ namespace ForFit\Mongodb\Cache;
 use Illuminate\Cache\DatabaseStore;
 use Closure;
 use MongoDB\BSON\UTCDateTime;
+use MongoDB\Driver\Exception\BulkWriteException;
 
 class Store extends DatabaseStore
 {
@@ -34,9 +35,14 @@ class Store extends DatabaseStore
     {
         $expiration = ($this->getTime() + (int) ($minutes * 60)) * 1000;
 
-        return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
-                ['value' => $this->encodeForSave($value), 'expiration' => new UTCDateTime($expiration)], ['upsert' => true]
-        );
+        try {
+            return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
+                    ['value' => $this->encodeForSave($value), 'expiration' => new UTCDateTime($expiration)], ['upsert' => true]
+            );
+        } catch (BulkWriteException $exception) {
+            // high concurrency exception
+            return false;
+        }
     }
 
     /**
