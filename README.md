@@ -39,11 +39,11 @@ Advantages
 * The package automatically adds a migration which creates the index by running a mongodb command.
 * This package also registers two new commands:
 
-    php artisan mongodb:cache:index
+        php artisan mongodb:cache:index
 
 and
 
-    php artisan mongodb:cache:dropindex
+        php artisan mongodb:cache:dropindex
 
 Warning
 -------
