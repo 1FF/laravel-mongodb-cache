@@ -41,7 +41,7 @@ Advantages
 
         php artisan mongodb:cache:index
 
-and
+    and
 
         php artisan mongodb:cache:dropindex
 
