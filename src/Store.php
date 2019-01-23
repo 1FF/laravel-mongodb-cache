@@ -125,4 +125,17 @@ class Store extends DatabaseStore
     {
         return unserialize($data);
     }
+
+    /**
+     * Forget all cache records that match the regex
+     *
+     * @param string $key
+     * @return boolean
+     */
+    public function forgetLike($key)
+    {
+        $this->table()->where('key', 'like', $this->getPrefix() . '%' . $key . '%')->delete();
+
+        return true;
+    }
 }
