@@ -3,6 +3,7 @@
 namespace ForFit\Mongodb\Cache;
 
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndex;
+use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndexTags;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheDropIndex;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider as ParentServiceProvider;
@@ -34,6 +35,7 @@ class ServiceProvider extends ParentServiceProvider
 
             $this->commands([
                 MongodbCacheIndex::class,
+                MongodbCacheIndexTags::class,
                 MongodbCacheDropIndex::class,
             ]);
         }

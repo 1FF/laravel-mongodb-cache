@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Artisan;
 
-class IndexMongodbCacheCollection extends Migration
+class AddIndexToTagsColumn extends Migration
 {
 
     /**
@@ -13,7 +13,7 @@ class IndexMongodbCacheCollection extends Migration
      */
     public function up()
     {
-        Artisan::call('mongodb:cache:index');
+        Artisan::call('mongodb:cache:index_tags');
     }
 
     /**
@@ -23,7 +23,6 @@ class IndexMongodbCacheCollection extends Migration
      */
     public function down()
     {
-        Artisan::call('mongodb:cache:dropindex', ['index' => 'key_1']);
-        Artisan::call('mongodb:cache:dropindex', ['index' => 'expiration_ttl_1']);
+        Artisan::call('mongodb:cache:dropindex', ['index' => 'tags']);
     }
 }

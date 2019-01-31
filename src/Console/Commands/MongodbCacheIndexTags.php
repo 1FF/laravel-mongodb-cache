@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\DB;
 use \MongoDB\Driver\ReadPreference;
 
 /**
- * Drop the indexes created by MongodbCacheIndex
+ * Create indexes for the cache collection
  */
-class MongodbCacheDropIndex extends Command
+class MongodbCacheIndexTags extends Command
 {
 
     /**
@@ -17,14 +17,14 @@ class MongodbCacheDropIndex extends Command
      *
      * @var string
      */
-    protected $signature = 'mongodb:cache:dropindex {index}';
+    protected $signature = 'mongodb:cache:index_tags';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Drops the passed index from the mongodb `cache` collection';
+    protected $description = 'Create indexes on the tags column of mongodb `cache` collection';
 
     /**
      * Execute the console command.
@@ -36,8 +36,14 @@ class MongodbCacheDropIndex extends Command
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
 
         DB::connection('mongodb')->getMongoDB()->command([
-            'dropIndexes' => $cacheCollectionName,
-            'index' => $this->argument('index'),
+            'createIndexes' => $cacheCollectionName,
+            'indexes' => [
+                [
+                    'key' => ['tags' => 1],
+                    'name' => 'tags_1',
+                    'background' => true
+                ],
+            ]
         ], [
             'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
         ]);
