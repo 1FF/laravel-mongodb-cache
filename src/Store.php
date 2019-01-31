@@ -9,6 +9,16 @@ use MongoDB\Driver\Exception\BulkWriteException;
 
 class Store extends DatabaseStore
 {
+    /**
+     * Sets the tags to be used
+     *
+     * @param array $tags
+     * @return MongoTaggedCache
+     */
+    public function tags(array $tags)
+    {
+        return new MongoTaggedCache($this, $tags);
+    }
 
     /**
      * Retrieve an item from the cache by key.
@@ -29,15 +39,21 @@ class Store extends DatabaseStore
      * @param  string  $key
      * @param  mixed   $value
      * @param  float|int  $minutes
+     * @param  array|null $tags
      * @return bool
      */
-    public function put($key, $value, $minutes)
+    public function put($key, $value, $minutes, $tags = [])
     {
         $expiration = ($this->getTime() + (int) ($minutes * 60)) * 1000;
 
         try {
             return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
-                    ['value' => $this->encodeForSave($value), 'expiration' => new UTCDateTime($expiration)], ['upsert' => true]
+                    [
+                        'value' => $this->encodeForSave($value),
+                        'expiration' => new UTCDateTime($expiration),
+                        'tags' => $tags
+                    ],
+                ['upsert' => true]
             );
         } catch (BulkWriteException $exception) {
             // high concurrency exception
@@ -127,15 +143,15 @@ class Store extends DatabaseStore
     }
 
     /**
-     * Forget all cache records that match the regex
+     * Deletes all records with the given tag
      *
-     * @param string $key
-     * @return boolean
+     * @param array $tags
+     * @return void
      */
-    public function forgetLike($key)
+    public function flushByTags(array $tags)
     {
-        $this->table()->where('key', 'like', $this->getPrefix() . '%' . $key . '%')->delete();
-
-        return true;
+        foreach ($tags as $tag) {
+            $this->table()->where('tags', $tag)->delete();
+        }
     }
 }
