@@ -9,7 +9,7 @@ Install using composer:
 
     composer require 1ff/laravel-mongodb-cache
 
-If you using Laravel older than 5.5 add the service provider in `config/app.php`:
+If you are using Laravel older than 5.5 add the service provider in `config/app.php`:
 
     'ForFit\Mongodb\Cache\ServiceProvider::class',
     
