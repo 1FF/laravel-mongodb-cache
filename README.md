@@ -5,13 +5,11 @@ A MongoDB cache driver for Laravel
 Installation
 ------------
 
-Make sure you have [jenssegers\mongodb](https://github.com/jenssegers/Laravel-MongoDB) installed before you continue.
-
 Install using composer:
 
     composer require 1ff/laravel-mongodb-cache
 
-Add the service provider in `config/app.php`:
+If you are using Laravel older than 5.5 add the service provider in `config/app.php`:
 
     'ForFit\Mongodb\Cache\ServiceProvider::class',
     
