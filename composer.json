@@ -2,10 +2,10 @@
     "name": "1ff/laravel-mongodb-cache",
     "description": "A mongodb cache driver for laravel",
     "type": "library",
-    "version": "2.10",
+    "version": "2.11",
     "require": {
         "jenssegers/mongodb": "3.*",
-        "illuminate/cache": "5.*"
+        "illuminate/cache": "5.*|6.*"
     },
     "license": "MIT",
     "authors": [
