@@ -22,23 +22,31 @@ class MongoTaggedCache extends Repository
     }
 
     /**
-     * Store an item in the cache.
+     * Store an item in the cache with tags.
      *
      * @param  string  $key
      * @param  mixed   $value
-     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $ttl
      * @return void
      */
-    public function put($key, $value, $minutes = null)
+    public function put($key, $value, $ttl = null)
     {
         if (is_array($key)) {
             return $this->putMany($key, $value);
         }
 
-        if (! is_null($minutes = $this->getMinutes($minutes))) {
-            $this->store->put($this->itemKey($key), $value, $minutes, $this->tags);
+        $seconds = $this->getSeconds(is_null($ttl) ? 315360000 : $ttl);
 
-            $this->event(new KeyWritten($key, $value, $minutes));
+        if ($seconds > 0) {
+            $result = $this->store->put($this->itemKey($key), $value, $seconds, $this->tags);
+
+            if ($result) {
+                $this->event(new KeyWritten($key, $value, $seconds));
+            }
+
+            return $result;
+        } else {
+            return $this->forget($key);
         }
     }
 
@@ -46,13 +54,13 @@ class MongoTaggedCache extends Repository
      * Saves array of key value pairs to the cache
      *
      * @param array $values
-     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $ttl
      * @return void
      */
-    public function putMany(array $values, $minutes)
+    public function putMany(array $values, $ttl = null)
     {
         foreach ($values as $key => $value) {
-            $this->put($key, $value, $minutes);
+            $this->put($key, $value, $ttl);
         }
     }
 

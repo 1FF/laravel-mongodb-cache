@@ -5,7 +5,7 @@
     "version": "2.11",
     "require": {
         "jenssegers/mongodb": "3.*",
-        "illuminate/cache": "5.*|6.*"
+        "illuminate/cache": "^5.8|^6"
     },
     "license": "MIT",
     "authors": [
