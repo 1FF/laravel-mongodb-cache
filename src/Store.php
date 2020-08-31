@@ -34,25 +34,25 @@ class Store extends DatabaseStore
     }
 
     /**
-     * Store an item in the cache for a given number of minutes.
+     * Store an item in the cache for a given number of seconds.
      *
      * @param  string  $key
      * @param  mixed   $value
-     * @param  float|int  $minutes
+     * @param  float|int  $ttl
      * @param  array|null $tags
      * @return bool
      */
-    public function put($key, $value, $minutes, $tags = [])
+    public function put($key, $value, $ttl, $tags = [])
     {
-        $expiration = ($this->getTime() + (int) ($minutes * 60)) * 1000;
+        $expiration = ($this->getTime() + (int) $ttl) * 1000;
 
         try {
             return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
-                    [
-                        'value' => $this->encodeForSave($value),
-                        'expiration' => new UTCDateTime($expiration),
-                        'tags' => $tags
-                    ],
+                [
+                    'value' => $this->encodeForSave($value),
+                    'expiration' => new UTCDateTime($expiration),
+                    'tags' => $tags
+                ],
                 ['upsert' => true]
             );
         } catch (BulkWriteException $exception) {
