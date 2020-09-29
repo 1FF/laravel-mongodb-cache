@@ -23,6 +23,6 @@ class AddIndexToTagsColumn extends Migration
      */
     public function down()
     {
-        Artisan::call('mongodb:cache:dropindex', ['index' => 'tags']);
+        Artisan::call('mongodb:cache:dropindex', ['index' => 'tags_1']);
     }
 }
