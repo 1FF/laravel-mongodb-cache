@@ -2,24 +2,27 @@
 
 namespace ForFit\Mongodb\Cache;
 
+use Illuminate\Support\Facades\Cache;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndex;
+use Illuminate\Support\ServiceProvider as ParentServiceProvider;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndexTags;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheDropIndex;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\ServiceProvider as ParentServiceProvider;
 
 class ServiceProvider extends ParentServiceProvider
 {
-
     /**
      * Register any application services.
      *
-     * @throws \Exception
      * @return void
      *
+     * @throws \Exception
      */
     public function boot()
     {
+        if (config('cache.default') !== 'mongodb') {
+            return;
+        }
+
         // Extend the mongodb driver by connecting the cache repository directly
         Cache::extend('mongodb', function ($app) {
             $config = config('cache')['stores']['mongodb'];
