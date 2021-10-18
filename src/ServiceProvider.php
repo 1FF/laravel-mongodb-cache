@@ -10,16 +10,19 @@ use Illuminate\Support\ServiceProvider as ParentServiceProvider;
 
 class ServiceProvider extends ParentServiceProvider
 {
-
     /**
      * Register any application services.
      *
-     * @throws \Exception
      * @return void
      *
+     * @throws \Exception
      */
     public function boot()
     {
+        if (config('cache.default') !== 'mongodb') {
+            return;
+        }
+
         // Extend the mongodb driver by connecting the cache repository directly
         Cache::extend('mongodb', function ($app) {
             $config = config('cache')['stores']['mongodb'];
