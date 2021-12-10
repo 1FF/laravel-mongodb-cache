@@ -34,25 +34,26 @@ class MongodbCacheIndex extends Command
     public function handle()
     {
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
-
-        DB::connection('mongodb')->getMongoDB()->command([
-            'createIndexes' => $cacheCollectionName,
-            'indexes' => [
-                [
-                    'key' => ['key' => 1],
-                    'name' => 'key_1',
-                    'unique' => true,
-                    'background' => true
-                ],
-                [
-                    'key' => ['expiration' => 1],
-                    'name' => 'expiration_ttl_1',
-                    'expireAfterSeconds' => 0,
-                    'background' => true
+        if ($connection = app()->make('db',['build'=>true])->connection('mongodb')) {
+            $connection->getMongoDB()->command([
+                'createIndexes' => $cacheCollectionName,
+                'indexes' => [
+                    [
+                        'key' => ['key' => 1],
+                        'name' => 'key_1',
+                        'unique' => true,
+                        'background' => true
+                    ],
+                    [
+                        'key' => ['expiration' => 1],
+                        'name' => 'expiration_ttl_1',
+                        'expireAfterSeconds' => 0,
+                        'background' => true
+                    ]
                 ]
-            ]
-        ], [
-            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
-        ]);
+            ], [
+                'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+            ]);
+        }
     }
 }
