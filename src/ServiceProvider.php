@@ -2,6 +2,7 @@
 
 namespace ForFit\Mongodb\Cache;
 
+use Jenssegers\Mongodb\Connection;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndex;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheIndexTags;
 use ForFit\Mongodb\Cache\Console\Commands\MongodbCacheDropIndex;
@@ -27,7 +28,9 @@ class ServiceProvider extends ParentServiceProvider
         Cache::extend('mongodb', function ($app) {
             $config = config('cache')['stores']['mongodb'];
             $prefix = config('cache')['prefix'];
-            $connection = $app['db']->connection($config['connection'] ?? null);
+            //$connection = $app['db']->connection($config['connection'] ?? null);
+            $connectionName = config('database')['connections'][$config['connection']];
+            $connection = new Connection($connectionName);
 
             return Cache::repository(new Store($connection, $config['table'], $prefix));
         });
