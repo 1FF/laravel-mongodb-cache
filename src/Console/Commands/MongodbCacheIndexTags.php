@@ -35,17 +35,19 @@ class MongodbCacheIndexTags extends Command
     {
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
 
-        DB::connection('mongodb')->getMongoDB()->command([
-            'createIndexes' => $cacheCollectionName,
-            'indexes' => [
-                [
-                    'key' => ['tags' => 1],
-                    'name' => 'tags_1',
-                    'background' => true
-                ],
-            ]
-        ], [
-            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
-        ]);
+        if ($connection = app()->make('db',['build'=>true])->connection('mongodb')) {
+            $connection->getMongoDB()->command([
+                'createIndexes' => $cacheCollectionName,
+                'indexes' => [
+                    [
+                        'key' => ['tags' => 1],
+                        'name' => 'tags_1',
+                        'background' => true
+                    ],
+                ]
+            ], [
+                'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+            ]);
+        }
     }
 }
