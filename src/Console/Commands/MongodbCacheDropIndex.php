@@ -34,12 +34,13 @@ class MongodbCacheDropIndex extends Command
     public function handle()
     {
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
-
-        DB::connection('mongodb')->getMongoDB()->command([
-            'dropIndexes' => $cacheCollectionName,
-            'index' => $this->argument('index'),
-        ], [
-            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
-        ]);
+        if ($connection = app()->make('db', ['build' => true])->connection('mongodb')) {
+            $connection->getMongoDB()->command([
+                'dropIndexes' => $cacheCollectionName,
+                'index' => $this->argument('index'),
+            ], [
+                'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+            ]);
+        }
     }
 }
