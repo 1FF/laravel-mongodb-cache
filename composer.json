@@ -8,8 +8,7 @@
         "illuminate/cache": "^5.8|^6"
     },
     "require-dev": {
-        "orchestra/testbench": "^3.0",
-        "phpunit/phpunit": "^9.4"
+        "orchestra/testbench": "^3.0"
     },
     "license": "MIT",
     "authors": [
