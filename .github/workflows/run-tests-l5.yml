@@ -1,4 +1,4 @@
-name: "Run Tests - Laravel 6"
+name: "Run Tests - Laravel 5"
 
 on: [push, pull_request]
 
@@ -10,9 +10,9 @@ jobs:
       fail-fast: false
       matrix:
         php: [7.3, 7.4]
-        laravel: [6.*]
+        laravel: [5.*]
         include:
-          - laravel: 6.*
+          - laravel: 5.*
             testbench: 3.0
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }}
