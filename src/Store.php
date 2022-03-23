@@ -2,8 +2,8 @@
 
 namespace ForFit\Mongodb\Cache;
 
-use Illuminate\Cache\DatabaseStore;
 use Closure;
+use Illuminate\Cache\DatabaseStore;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Driver\Exception\BulkWriteException;
 
@@ -81,6 +81,19 @@ class Store extends DatabaseStore
     }
 
     /**
+     * Deletes all records with the given tag
+     *
+     * @param array $tags
+     * @return void
+     */
+    public function flushByTags(array $tags)
+    {
+        foreach ($tags as $tag) {
+            $this->table()->where('tags', $tag)->delete();
+        }
+    }
+
+    /**
      * Increment or decrement an item in the cache.
      *
      * @param  string  $key
@@ -140,18 +153,5 @@ class Store extends DatabaseStore
     protected function decodeFromSaved($data)
     {
         return unserialize($data);
-    }
-
-    /**
-     * Deletes all records with the given tag
-     *
-     * @param array $tags
-     * @return void
-     */
-    public function flushByTags(array $tags)
-    {
-        foreach ($tags as $tag) {
-            $this->table()->where('tags', $tag)->delete();
-        }
     }
 }
