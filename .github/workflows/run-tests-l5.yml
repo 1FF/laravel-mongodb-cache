@@ -1,6 +1,11 @@
 name: "Run Tests - Laravel 5"
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ v2.12, master ]
+
+  pull_request:
+    branches: [ v2.12, master ]
 
 jobs:
   tests:
@@ -9,11 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.3, 7.4]
+        php: [7.2, 7.3, 7.4]
         laravel: [5.*]
         include:
           - laravel: 5.*
-            testbench: 3.0
+            testbench: 3
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
