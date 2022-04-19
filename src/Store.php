@@ -3,55 +3,78 @@
 namespace ForFit\Mongodb\Cache;
 
 use Closure;
-use Illuminate\Cache\DatabaseStore;
+use Illuminate\Support\InteractsWithTime;
+use Illuminate\Cache\RetrievesMultipleKeys;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Contracts\Cache\Store as StoreInterface;
+use Jenssegers\Mongodb\Query\Builder;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Driver\Exception\BulkWriteException;
 
-class Store extends DatabaseStore
+class Store implements StoreInterface
 {
+    use InteractsWithTime;
+    use RetrievesMultipleKeys;
+
     /**
-     * Sets the tags to be used
+     * The database connection instance.
      *
-     * @param array $tags
-     * @return MongoTaggedCache
+     * @var ConnectionInterface
      */
-    public function tags(array $tags)
+    protected $connection;
+
+    /**
+     * The name of the cache table.
+     *
+     * @var string
+     */
+    protected $table;
+
+    /**
+     * A string that should be prepended to keys.
+     *
+     * @var string
+     */
+    protected $prefix;
+
+    /**
+     * Create a new database store.
+     *
+     * @param ConnectionInterface $connection
+     * @param string $table
+     * @param string $prefix
+     * @return void
+     */
+    public function __construct(ConnectionInterface $connection, string $table, string $prefix = '')
     {
-        return new MongoTaggedCache($this, $tags);
+        $this->table = $table;
+        $this->prefix = $prefix;
+        $this->connection = $connection;
     }
 
     /**
-     * Retrieve an item from the cache by key.
-     *
-     * @param  string $key
-     * @return mixed
+     * @inheritDoc
      */
     public function get($key)
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? $this->decodeFromSaved($cacheData['value']) : null;
+        return empty($cacheData) ? null : unserialize($cacheData['value']);
     }
 
     /**
-     * Store an item in the cache for a given number of seconds.
-     *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @param  float|int  $ttl
-     * @param  array|null $tags
-     * @return bool
+     * @inheritDoc
      */
-    public function put($key, $value, $ttl, $tags = [])
+    public function put($key, $value, $seconds, $tags = [])
     {
-        $expiration = ($this->getTime() + (int) $ttl) * 1000;
+        $expiration = ($this->currentTime() + (int)$seconds) * 1000;
 
         try {
-            return (bool) $this->table()->where('key', $this->getKeyWithPrefix($key))->update(
+            return (bool)$this->table()->where('key', $this->getKeyWithPrefix($key))->update(
                 [
-                    'value' => $this->encodeForSave($value),
+                    'value' => serialize($value),
                     'expiration' => new UTCDateTime($expiration),
-                    'tags' => $tags
+                    'tags' => $tags,
                 ],
                 ['upsert' => true]
             );
@@ -62,22 +85,70 @@ class Store extends DatabaseStore
     }
 
     /**
-     * Retrieve an item's expiration time from the cache by key.
-     *
-     * @param  string  $key
-     * @return mixed
+     * @inheritDoc
      */
-    public function getExpiration($key)
+    public function increment($key, $value = 1)
     {
-        $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
+        return $this->incrementOrDecrement($key, $value, function ($current, $value) {
+            return $current + $value;
+        });
+    }
 
-        if (!$cacheData) {
-            return null;
-        }
+    /**
+     * @inheritDoc
+     */
+    public function decrement($key, $value = 1)
+    {
+        return $this->incrementOrDecrement($key, $value, function ($current, $value) {
+            return $current - $value;
+        });
+    }
 
-        $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
+    /**
+     * @inheritDoc
+     */
+    public function forever($key, $value)
+    {
+        return $this->put($key, $value, 315360000);
+    }
 
-        return round(($expirationSeconds - time()) / 60);
+    /**
+     * @inheritDoc
+     */
+    public function forget($key)
+    {
+        $this->table()->where('key', '=', $this->getPrefix() . $key)->delete();
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function flush()
+    {
+        $this->table()->delete();
+
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * Sets the tags to be used
+     *
+     * @param array $tags
+     * @return MongoTaggedCache
+     */
+    public function tags(array $tags)
+    {
+        return new MongoTaggedCache($this, $tags);
     }
 
     /**
@@ -94,32 +165,32 @@ class Store extends DatabaseStore
     }
 
     /**
-     * Increment or decrement an item in the cache.
+     * Retrieve an item's expiration time from the cache by key.
      *
-     * @param  string  $key
-     * @param  int  $value
-     * @param  Closure  $callback
-     * @return int|bool
+     * @param string $key
+     * @return null|float|int
      */
-    protected function incrementOrDecrement($key, $value, Closure $callback)
+    public function getExpiration($key)
     {
-        if (isset($this->connection->transaction)) {
-            return parent::incrementOrDecrement($key, $value, $callback);
+        $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
+
+        if (empty($cacheData['expiration'])) {
+            return null;
         }
 
-        $currentValue = $this->get($key);
+        $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
 
-        if ($currentValue === null) {
-            return false;
-        }
+        return round(($expirationSeconds - time()) / 60);
+    }
 
-        $newValue = $callback($currentValue, $value);
-
-        if ($this->put($key, $newValue, $this->getExpiration($key))) {
-            return $newValue;
-        }
-
-        return false;
+    /**
+     * Get a query builder for the cache table.
+     *
+     * @return Builder
+     */
+    protected function table()
+    {
+        return $this->connection->table($this->table);
     }
 
     /**
@@ -134,24 +205,27 @@ class Store extends DatabaseStore
     }
 
     /**
-     * Encode data for save
+     * Increment or decrement an item in the cache.
      *
-     * @param mixed $data
-     * @return string
+     * @param string $key
+     * @param int $value
+     * @param Closure $callback
+     * @return int|bool
      */
-    protected function encodeForSave($data)
+    protected function incrementOrDecrement($key, $value, Closure $callback)
     {
-        return serialize($data);
-    }
+        $currentValue = $this->get($key);
 
-    /**
-     * Decode data from save
-     *
-     * @param string $data
-     * @return mixed
-     */
-    protected function decodeFromSaved($data)
-    {
-        return unserialize($data);
+        if ($currentValue === null) {
+            return false;
+        }
+
+        $newValue = $callback($currentValue, $value);
+
+        if ($this->put($key, $newValue, $this->getExpiration($key))) {
+            return $newValue;
+        }
+
+        return false;
     }
 }
