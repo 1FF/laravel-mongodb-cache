@@ -59,7 +59,7 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return empty($cacheData) ? null : unserialize($cacheData['value']);
+        return $cacheData ? unserialize($cacheData['value']) : null;
     }
 
     /**
@@ -180,7 +180,7 @@ class Store implements StoreInterface
 
         $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
 
-        return round(($expirationSeconds - time()) / 60);
+        return round(($expirationSeconds - $this->currentTime()) / 60);
     }
 
     /**
