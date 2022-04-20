@@ -6,9 +6,9 @@ A MongoDB cache driver for Laravel
 |-------------------------|-------------------------|----------------------------------------------------|
 | 5.7.x                   | 2.11.x                  | composer require 1ff/laravel-mongodb-cache:~2.11.0 |
 | 5.8.x, 6.x              | 2.12.x                  | composer require 1ff/laravel-mongodb-cache:~2.12.0 |
-| 7.x                     | 3.x.x                   | composer require 1ff/laravel-mongodb-cache:^3.0    |
+| 7.x                     | 3.x.x                   | composer require 1ff/laravel-mongodb-cache:^3.1    |
 | 8.x                     | 4.x.x                   | composer require 1ff/laravel-mongodb-cache:^4.1    |
-| 9.x                     | 5.x.x                   | Comming soon                                       |
+| 9.x                     | 5.x.x                   | composer require 1ff/laravel-mongodb-cache:^5.0    |
 
 Installation
 ------------
@@ -32,10 +32,24 @@ Add the mongodb cache store in `config/cache.php`
             'connection' => 'mongodb',
         ],
     ],
-    
+
+Add the mongodb database connection in `config/database.php`
+
+    'connections' => [
+        ...
+
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_DSN'),
+            'database' => env('MONGODB_DATABASE'),
+        ],
+    ],
+
 Update your .env file and change the `CACHE_DRIVER` to mongodb
 
     CACHE_DRIVER=mongodb
+    MONGODB_DSN=mongodb://localhost:27017/laravel
+    MONGODB_DATABASE=laravel
 
 Advantages
 ----------
