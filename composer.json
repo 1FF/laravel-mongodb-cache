@@ -5,10 +5,10 @@
     "version": "5.0.0",
     "require": {
         "jenssegers/mongodb": "~3.9",
-        "illuminate/cache": "^9.0"
+        "illuminate/cache": "^10.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^7.0"
+        "orchestra/testbench": "^8.0"
     },
     "license": "MIT",
     "authors": [
