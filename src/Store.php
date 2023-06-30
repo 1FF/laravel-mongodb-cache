@@ -74,13 +74,13 @@ class Store implements StoreInterface
 
     protected function unserialize($value)
     {
-        $value = unserialize($value);
         if ($value instanceof \MongoDB\BSON\Binary) {
             $value = $value->getData();
+        } else {
+            $value = unserialize($value);
         }
         return $value;
     }
-
 
     /**
      * @inheritDoc
