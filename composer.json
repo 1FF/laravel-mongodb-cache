@@ -19,6 +19,10 @@
         {
             "name": "1FF Team",
             "homepage": "https://github.com/1FF"
+        },
+        {
+            "name": "Alberto Berroteran Sánchez",
+            "email": "alberroteran@gmail.com"
         }
     ],
     "minimum-stability": "stable",
