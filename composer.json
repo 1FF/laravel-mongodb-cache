@@ -1,5 +1,5 @@
 {
-    "name": "1ff/laravel-mongodb-cache",
+    "name": "ebethus/mongod-laravel-cache",
     "description": "A mongodb cache driver for laravel",
     "type": "library",
     "version": "5.0.0",
