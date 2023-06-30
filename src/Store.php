@@ -59,8 +59,28 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? unserialize($cacheData['value']) : null;
+        return $cacheData ? $this->unserialize($cacheData['value']) : null;
     }
+
+    protected function serialize($value)
+    {
+        if (is_string($value) && mb_detect_encoding($value) !== 'UTF-8') {
+            $r = new \MongoDB\BSON\Binary($value,\MongoDB\BSON\Binary::TYPE_GENERIC);
+        } else {
+            $r = serialize($value);
+        }
+        return $r;
+    }
+
+    protected function unserialize($value)
+    {
+        $value = unserialize($value);
+        if ($value instanceof \MongoDB\BSON\Binary) {
+            $value = $value->getData();
+        }
+        return $value;
+    }
+
 
     /**
      * @inheritDoc
@@ -72,7 +92,7 @@ class Store implements StoreInterface
         try {
             return (bool)$this->table()->where('key', $this->getKeyWithPrefix($key))->update(
                 [
-                    'value' => serialize($value),
+                    'value' => $this->serialize($value),
                     'expiration' => new UTCDateTime($expiration),
                     'tags' => $tags,
                 ],
