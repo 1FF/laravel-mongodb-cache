@@ -1,8 +1,7 @@
 {
-    "name": "ebethus/mongod-laravel-cache",
+    "name": "ebethus/mongodb-laravel-cache",
     "description": "A mongodb cache driver for laravel",
     "type": "library",
-    "version": "5.0.0",
     "require": {
         "jenssegers/mongodb": "~3.9",
         "illuminate/cache": "^9.0"
