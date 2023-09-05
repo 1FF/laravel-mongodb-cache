@@ -1,11 +1,11 @@
-name: "Run Tests - Laravel 5"
+name: "Run Tests - Laravel 10"
 
 on:
-  push:
-    branches: [ v2.12 ]
+    push:
+        branches: [ v6.x, master ]
 
-  pull_request:
-    branches: [ v2.12 ]
+    pull_request:
+        branches: [ v6.x, master ]
 
 jobs:
   tests:
@@ -14,11 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.2, 7.3, 7.4]
-        laravel: [5.*]
+        php: [8.1]
+        laravel: [10.*]
         include:
-          - laravel: 5.*
-            testbench: 3
+          - laravel: 10.*
+            testbench: 8.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
