@@ -2,10 +2,10 @@ name: "Run Tests - Laravel 9"
 
 on:
     push:
-        branches: [ v5.x, master ]
+        branches: [ v5.x ]
 
     pull_request:
-        branches: [ v5.x, master ]
+        branches: [ v5.x ]
 
 jobs:
   tests:
