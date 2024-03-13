@@ -2,10 +2,10 @@ name: "Run Tests - Laravel 8"
 
 on:
     push:
-        branches: [ v4.x, master ]
+        branches: [ v4.x ]
 
     pull_request:
-        branches: [ v4.x, master ]
+        branches: [ v4.x ]
 
 jobs:
   tests:
