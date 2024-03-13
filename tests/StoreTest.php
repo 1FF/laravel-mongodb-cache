@@ -140,6 +140,6 @@ class StoreTest extends TestCase
         $sut = $this->store->getExpiration('test-key');
 
         // Assert
-        $this->assertEquals(2880.0, $sut); // 2 days in seconds.
+        $this->assertEquals(172800, $sut); // 2 days in seconds.
     }
 }
