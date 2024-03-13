@@ -77,7 +77,7 @@ class Store extends DatabaseStore
 
         $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
 
-        return round(($expirationSeconds - time()) / 60);
+        return round(($expirationSeconds - $this->currentTime()));
     }
 
     /**
