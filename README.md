@@ -4,6 +4,7 @@ A MongoDB cache driver for Laravel
 
 | **Laravel<br/>Version** | **Package<br/>Version** | **Install using<br/>this command**                 |
 |-------------------------|-------------------------|----------------------------------------------------|
+| 11.x                    | 7.x.x                   | composer require 1ff/laravel-mongodb-cache:^7.0    |
 | 10.x                    | 6.x.x                   | composer require 1ff/laravel-mongodb-cache:^6.0    |
 | 9.x                     | 5.x.x                   | composer require 1ff/laravel-mongodb-cache:^5.0    |
 | 8.x                     | 4.x.x                   | composer require 1ff/laravel-mongodb-cache:^4.1    |
