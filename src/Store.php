@@ -180,7 +180,7 @@ class Store implements StoreInterface
 
         $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
 
-        return round(($expirationSeconds - $this->currentTime()) / 60);
+        return round($expirationSeconds - $this->currentTime());
     }
 
     /**
