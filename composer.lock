@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8f28991397cfc97801d95f4bf1867e16",
+    "content-hash": "44b7ccd6ef710970f5a403b33c7459e4",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -373,17 +373,17 @@
             "time": "2018-08-06T19:58:11+00:00"
         },
         {
-            "name": "jenssegers/mongodb",
-            "version": "v3.4.2",
+            "name": "mongodb/laravel-mongodb",
+            "version": "v3.5.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jenssegers/laravel-mongodb.git",
-                "reference": "e1c6e53e7d614f22c9226992a099d9a6f333851d"
+                "url": "https://github.com/mongodb/laravel-mongodb.git",
+                "reference": "58972584d1b5ea61101a9aaa80c84e22f19d1daa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jenssegers/laravel-mongodb/zipball/e1c6e53e7d614f22c9226992a099d9a6f333851d",
-                "reference": "e1c6e53e7d614f22c9226992a099d9a6f333851d",
+                "url": "https://api.github.com/repos/mongodb/laravel-mongodb/zipball/58972584d1b5ea61101a9aaa80c84e22f19d1daa",
+                "reference": "58972584d1b5ea61101a9aaa80c84e22f19d1daa",
                 "shasum": ""
             },
             "require": {
@@ -439,7 +439,11 @@
                 "mongo",
                 "mongodb"
             ],
-            "time": "2018-04-25T06:38:53+00:00"
+            "support": {
+                "issues": "https://github.com/mongodb/laravel-mongodb/issues",
+                "source": "https://github.com/mongodb/laravel-mongodb/tree/v3.5.0"
+            },
+            "time": "2019-02-27T16:24:21+00:00"
         },
         {
             "name": "mongodb/mongodb",
@@ -794,5 +798,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }
