@@ -9,7 +9,8 @@
         "mongodb/laravel-mongodb": "^4.1"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0"
+        "orchestra/testbench": "^8.0",
+        "ext-mongodb": "*"
     },
     "license": "MIT",
     "authors": [
