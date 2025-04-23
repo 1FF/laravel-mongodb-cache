@@ -9,8 +9,7 @@
         "ext-mongodb": "*"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0",
-        "ext-mongodb": "*"
+        "orchestra/testbench": "^8.0"
     },
     "license": "MIT",
     "authors": [
