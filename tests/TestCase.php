@@ -10,7 +10,7 @@ use Tests\Overrides\Builder;
 
 abstract class TestCase extends Orchestra
 {
-    private $table = 'cache_test';
+    private string $table = 'cache_test';
     private $connectionInterface;
 
     /**
@@ -41,7 +41,7 @@ abstract class TestCase extends Orchestra
      *
      * @param \Illuminate\Foundation\Application $app
      */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
         $app['config']->set('cache.stores.mongodb', [
             'driver' => 'mongodb',
@@ -78,7 +78,7 @@ abstract class TestCase extends Orchestra
      *
      * @param \Illuminate\Foundation\Application $app
      */
-    protected function setUpDatabase($app)
+    protected function setUpDatabase($app): void
     {
         $app['db']->connection()->getSchemaBuilder()->create($this->table, function (Blueprint $table) {
             $table->increments('_id');
@@ -112,11 +112,10 @@ abstract class TestCase extends Orchestra
      * @return void
      * @throws \ReflectionException
      */
-    protected function assertPropertySame($expected, $property, $object, string $message = '')
+    protected function assertPropertySame($expected, $property, $object, string $message = ''): void
     {
         $reflectedClass = new \ReflectionClass($object);
         $reflection = $reflectedClass->getProperty($property);
-        $reflection->setAccessible(true);
 
         $this->assertSame($expected, $reflection->getValue($object), $message);
     }

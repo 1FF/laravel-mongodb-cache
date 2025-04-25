@@ -2,16 +2,16 @@
 
 namespace ForFit\Mongodb\Cache;
 
+use Illuminate\Cache\Events\KeyWritten;
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
-use Illuminate\Cache\Events\KeyWritten;
 
 class MongoTaggedCache extends Repository
 {
-    protected $tags;
+    protected array $tags;
 
     /**
-     * @param \Illuminate\Contracts\Cache\Store $store
+     * @param Store $store
      * @param array $tags
      */
     public function __construct(Store $store, array $tags = [])
@@ -27,12 +27,12 @@ class MongoTaggedCache extends Repository
      * @param  string  $key
      * @param  mixed   $value
      * @param  \DateTimeInterface|\DateInterval|float|int  $ttl
-     * @return void
+     * @return bool|null
      */
     public function put($key, $value, $ttl = null)
     {
         if (is_array($key)) {
-            return $this->putMany($key, $value);
+            $this->putMany($key, $value);
         }
 
         $seconds = $this->getSeconds(is_null($ttl) ? 315360000 : $ttl);
@@ -45,19 +45,17 @@ class MongoTaggedCache extends Repository
             }
 
             return $result;
-        } else {
-            return $this->forget($key);
         }
+
+        return $this->forget($key);
     }
 
     /**
      * Saves array of key value pairs to the cache
      *
-     * @param array $values
      * @param  \DateTimeInterface|\DateInterval|float|int  $ttl
-     * @return void
      */
-    public function putMany(array $values, $ttl = null)
+    public function putMany(array $values, $ttl = null): void
     {
         foreach ($values as $key => $value) {
             $this->put($key, $value, $ttl);
@@ -66,11 +64,9 @@ class MongoTaggedCache extends Repository
 
     /**
      * Flushes the cache for the given tags
-     *
-     * @return void
      */
-    public function flush()
+    public function flush(): void
     {
-        return $this->store->flushByTags($this->tags);
+        $this->store->flushByTags($this->tags);
     }
 }
