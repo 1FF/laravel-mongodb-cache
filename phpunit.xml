@@ -10,5 +10,10 @@
     </testsuites>
     <php>
         <env name="CACHE_DRIVER" value="array"/>
+        <env name="MONGODB_HOST" value="127.0.0.1"/>
+        <env name="MONGODB_PORT" value="27017"/>
+        <env name="MONGODB_DATABASE" value="laravel_mongodb_cache_test"/>
+        <env name="MONGODB_USERNAME" value=""/>
+        <env name="MONGODB_PASSWORD" value=""/>
     </php>
 </phpunit>

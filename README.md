@@ -66,6 +66,43 @@ Advantages
 
         php artisan mongodb:cache:dropindex
 
+Testing
+-------
+
+This package includes tests that interact with a real MongoDB database to verify the functionality of the cache driver. The tests require a MongoDB instance to run successfully.
+
+To run the tests:
+
+1. Make sure you have MongoDB installed and running on your local machine
+2. The test configuration is set in `phpunit.xml`:
+
+```xml
+<php>
+    <env name="MONGODB_HOST" value="127.0.0.1"/>
+    <env name="MONGODB_PORT" value="27017"/>
+    <env name="MONGODB_DATABASE" value="laravel_mongodb_cache_test"/>
+    <env name="MONGODB_USERNAME" value=""/>
+    <env name="MONGODB_PASSWORD" value=""/>
+</php>
+```
+
+3. Run the tests with:
+
+```
+composer test
+```
+
+or
+
+```
+vendor/bin/phpunit
+```
+
+GitHub Actions
+-------------
+
+The package includes GitHub Actions workflows that automatically run tests against a MongoDB service. The MongoDB service is started as part of the CI workflow, ensuring tests are executed in an environment with a real MongoDB database.
+
 Warning
 -------
 

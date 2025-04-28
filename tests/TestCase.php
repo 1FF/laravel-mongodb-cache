@@ -3,15 +3,13 @@
 namespace Tests;
 
 use ForFit\Mongodb\Cache\ServiceProvider as MongoDbCacheServiceProvider;
-use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use MongoDB\Laravel\MongoDBServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Tests\Overrides\Builder;
 
 abstract class TestCase extends Orchestra
 {
     private string $table = 'cache_test';
-    private $connectionInterface;
 
     /**
      * @return void
@@ -20,8 +18,8 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->setUpDatabase($this->app);
-        $this->connectionInterface = $this->initializeConnection();
+        // Clear the cache collection before each test
+        $this->flushCache();
     }
 
     /**
@@ -33,6 +31,7 @@ abstract class TestCase extends Orchestra
     {
         return [
             MongoDbCacheServiceProvider::class,
+            MongoDBServiceProvider::class
         ];
     }
 
@@ -41,7 +40,7 @@ abstract class TestCase extends Orchestra
      *
      * @param \Illuminate\Foundation\Application $app
      */
-    protected function getEnvironmentSetUp($app): void
+    protected function defineEnvironment($app): void
     {
         $app['config']->set('cache.stores.mongodb', [
             'driver' => 'mongodb',
@@ -51,18 +50,16 @@ abstract class TestCase extends Orchestra
 
         $app['config']->set('database.default', 'mongodb');
         $app['config']->set('database.connections.mongodb', [
-            'driver' => 'sqlite',
-            'database' => ':memory:',
-            'prefix' => '',
+            'driver' => 'mongodb',
+            'host' => env('MONGODB_HOST', '127.0.0.1'),
+            'port' => env('MONGODB_PORT', 27017),
+            'database' => env('MONGODB_DATABASE', 'laravel_mongodb_cache_test'),
+            'username' => env('MONGODB_USERNAME', ''),
+            'password' => env('MONGODB_PASSWORD', ''),
+            'options' => [
+                'database' => env('MONGODB_AUTHENTICATION_DATABASE', 'admin'),
+            ],
         ]);
-    }
-
-    /**
-     * @return \Illuminate\Database\Connection|\Mockery\LegacyMockInterface|\Mockery\MockInterface|null
-     */
-    protected function connection()
-    {
-        return $this->connectionInterface->getMock();
     }
 
     /**
@@ -74,49 +71,12 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * Set up the database.
-     *
-     * @param \Illuminate\Foundation\Application $app
+     * Flush the cache collection
      */
-    protected function setUpDatabase($app): void
+    protected function flushCache(): void
     {
-        $app['db']->connection()->getSchemaBuilder()->create($this->table, function (Blueprint $table) {
-            $table->increments('_id');
-            $table->dateTimeTz('expiration')->nullable();
-            $table->string('key');
-            $table->string('value');
-            $table->json('tags')->nullable();
-        });
-    }
-
-    /**
-     * @return \Mockery\Expectation|\Mockery\ExpectationInterface|\Mockery\HigherOrderMessage
-     */
-    protected function initializeConnection()
-    {
-        $builder = app(Builder::class, ['connection' => $this->getConnection()]);
-        $builder->from = $this->table;
-
-        return $this->spy(ConnectionInterface::class)
-            ->shouldReceive('table')
-            ->andReturn($builder);
-    }
-
-    /**
-     * Assert the object has given property.
-     *
-     * @param $expected
-     * @param $property
-     * @param $object
-     * @param string $message
-     * @return void
-     * @throws \ReflectionException
-     */
-    protected function assertPropertySame($expected, $property, $object, string $message = ''): void
-    {
-        $reflectedClass = new \ReflectionClass($object);
-        $reflection = $reflectedClass->getProperty($property);
-
-        $this->assertSame($expected, $reflection->getValue($object), $message);
+        DB::connection('mongodb')
+            ->table($this->table)
+            ->delete();
     }
 }
