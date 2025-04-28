@@ -98,6 +98,22 @@ or
 vendor/bin/phpunit
 ```
 
+### Test Structure
+
+The test suite is organized into multiple files to test various aspects of the MongoDB cache driver:
+
+- `StoreTest.php`: Tests basic Store class functionality (get, put, forget, flush)
+- `AdvancedCacheFeaturesTest.php`: Tests advanced Store features like increment/decrement, forever storage, and handling arrays/objects
+- `TaggedCacheTest.php`: Tests tagged cache functionality
+- `LaravelIntegrationTest.php`: Tests integration with Laravel's Cache facade
+
+Some functionality (like increment/decrement, forever storage) is intentionally tested in multiple contexts:
+1. At the low-level Store implementation
+2. Through Laravel's Cache facade
+3. With tagged cache operations
+
+This multi-layered approach ensures that all feature functionality works correctly at all levels of integration.
+
 GitHub Actions
 -------------
 

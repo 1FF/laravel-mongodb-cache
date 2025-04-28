@@ -6,7 +6,9 @@ use ForFit\Mongodb\Cache\ServiceProvider as MongoDbCacheServiceProvider;
 use Illuminate\Support\Facades\DB;
 use MongoDB\Laravel\MongoDBServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
+#[RequiresPhpExtension('mongodb')]
 abstract class TestCase extends Orchestra
 {
     private string $table = 'cache_test';
@@ -23,20 +25,7 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * @param \Illuminate\Foundation\Application $app
-     *
-     * @return array
-     */
-    protected function getPackageProviders($app): array
-    {
-        return [
-            MongoDbCacheServiceProvider::class,
-            MongoDBServiceProvider::class
-        ];
-    }
-
-    /**
-     * Set up the environment.
+     * Define environment setup.
      *
      * @param \Illuminate\Foundation\Application $app
      */
@@ -63,6 +52,19 @@ abstract class TestCase extends Orchestra
     }
 
     /**
+     * @param \Illuminate\Foundation\Application $app
+     *
+     * @return array
+     */
+    protected function getPackageProviders($app): array
+    {
+        return [
+            MongoDbCacheServiceProvider::class,
+            MongoDBServiceProvider::class
+        ];
+    }
+
+    /**
      * @return string
      */
     protected function table(): string
@@ -78,5 +80,14 @@ abstract class TestCase extends Orchestra
         DB::connection('mongodb')
             ->table($this->table)
             ->delete();
+    }
+
+    /**
+     * Get the cache collection instance from MongoDB
+     */
+    protected function getCacheCollection()
+    {
+        return DB::connection('mongodb')
+            ->table($this->table);
     }
 }
