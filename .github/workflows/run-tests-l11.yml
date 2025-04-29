@@ -11,6 +11,18 @@ jobs:
   tests:
 
     runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --quiet --eval 'db.runCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
     strategy:
       fail-fast: false
       matrix:
@@ -18,22 +30,39 @@ jobs:
         laravel: [ 11.* ]
         include:
           - laravel: 11.*
-            testbench: 8.*
+            testbench: 9.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: pdo, sqlite, pdo_sqlite
+          extensions: pdo, sqlite, pdo_sqlite, mongodb
+          coverage: none
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Dependencies
-        run: composer install
+        run: composer install --prefer-dist --no-interaction --no-progress
+
 
       - name: Execute tests
         run: vendor/bin/phpunit
+        env:
+          MONGODB_HOST: 127.0.0.1
+          MONGODB_PORT: 27017
+          MONGODB_DATABASE: laravel_mongodb_cache_test
