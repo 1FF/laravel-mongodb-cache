@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.2|^8.3",
         "illuminate/cache": "^11.0",
-        "mongodb/laravel-mongodb": "^4.1",
+        "mongodb/laravel-mongodb": "^5.0",
         "ext-mongodb": "*"
     },
     "require-dev": {
