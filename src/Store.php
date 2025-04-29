@@ -7,9 +7,9 @@ use Illuminate\Cache\RetrievesMultipleKeys;
 use Illuminate\Contracts\Cache\Store as StoreInterface;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\InteractsWithTime;
-use Jenssegers\Mongodb\Query\Builder;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Driver\Exception\BulkWriteException;
+use MongoDB\Laravel\Query\Builder;
 
 class Store implements StoreInterface
 {
@@ -59,7 +59,7 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? unserialize($cacheData['value']) : null;
+        return $cacheData ? unserialize($cacheData->value) : null;
     }
 
     /**
@@ -165,11 +165,11 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        if (empty($cacheData['expiration'])) {
+        if (empty($cacheData->expiration)) {
             return null;
         }
 
-        $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
+        $expirationSeconds = $cacheData->expiration->toDateTime()->getTimestamp();
 
         return round($expirationSeconds - $this->currentTime());
     }
