@@ -5,7 +5,7 @@
     "require": {
         "php": "^8.1",
         "illuminate/cache": "^10.0",
-        "mongodb/laravel-mongodb": "^4.1",
+        "mongodb/laravel-mongodb": "^5.0",
         "ext-mongodb": "*"
     },
     "require-dev": {
@@ -39,5 +39,8 @@
                 "ForFit\\Mongodb\\Cache\\ServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }

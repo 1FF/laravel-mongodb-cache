@@ -66,6 +66,59 @@ Advantages
 
         php artisan mongodb:cache:dropindex
 
+Testing
+-------
+
+This package includes tests that interact with a real MongoDB database to verify the functionality of the cache driver. The tests require a MongoDB instance to run successfully.
+
+To run the tests:
+
+1. Make sure you have MongoDB installed and running on your local machine
+2. The test configuration is set in `phpunit.xml`:
+
+```xml
+<php>
+    <env name="MONGODB_HOST" value="127.0.0.1"/>
+    <env name="MONGODB_PORT" value="27017"/>
+    <env name="MONGODB_DATABASE" value="laravel_mongodb_cache_test"/>
+    <env name="MONGODB_USERNAME" value=""/>
+    <env name="MONGODB_PASSWORD" value=""/>
+</php>
+```
+
+3. Run the tests with:
+
+```
+composer test
+```
+
+or
+
+```
+vendor/bin/phpunit
+```
+
+### Test Structure
+
+The test suite is organized into multiple files to test various aspects of the MongoDB cache driver:
+
+- `StoreTest.php`: Tests basic Store class functionality (get, put, forget, flush)
+- `AdvancedCacheFeaturesTest.php`: Tests advanced Store features like increment/decrement, forever storage, and handling arrays/objects
+- `TaggedCacheTest.php`: Tests tagged cache functionality
+- `LaravelIntegrationTest.php`: Tests integration with Laravel's Cache facade
+
+Some functionality (like increment/decrement, forever storage) is intentionally tested in multiple contexts:
+1. At the low-level Store implementation
+2. Through Laravel's Cache facade
+3. With tagged cache operations
+
+This multi-layered approach ensures that all feature functionality works correctly at all levels of integration.
+
+GitHub Actions
+-------------
+
+The package includes GitHub Actions workflows that automatically run tests against a MongoDB service. The MongoDB service is started as part of the CI workflow, ensuring tests are executed in an environment with a real MongoDB database.
+
 Warning
 -------
 
