@@ -3,13 +3,13 @@
 namespace ForFit\Mongodb\Cache;
 
 use Closure;
-use Illuminate\Support\InteractsWithTime;
 use Illuminate\Cache\RetrievesMultipleKeys;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Contracts\Cache\Store as StoreInterface;
-use Jenssegers\Mongodb\Query\Builder;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\InteractsWithTime;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Driver\Exception\BulkWriteException;
+use MongoDB\Laravel\Query\Builder;
 
 class Store implements StoreInterface
 {
@@ -59,7 +59,7 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? unserialize($cacheData['value']) : null;
+        return $cacheData ? unserialize($cacheData->value) : null;
     }
 
     /**
@@ -107,7 +107,7 @@ class Store implements StoreInterface
     /**
      * @inheritDoc
      */
-    public function forever($key, $value)
+    public function forever($key, $value): bool
     {
         return $this->put($key, $value, 315360000);
     }
@@ -115,7 +115,7 @@ class Store implements StoreInterface
     /**
      * @inheritDoc
      */
-    public function forget($key)
+    public function forget($key): bool
     {
         $this->table()->where('key', '=', $this->getPrefix() . $key)->delete();
 
@@ -125,7 +125,7 @@ class Store implements StoreInterface
     /**
      * @inheritDoc
      */
-    public function flush()
+    public function flush(): bool
     {
         $this->table()->delete();
 
@@ -135,29 +135,23 @@ class Store implements StoreInterface
     /**
      * @inheritDoc
      */
-    public function getPrefix()
+    public function getPrefix(): string
     {
         return $this->prefix;
     }
 
     /**
      * Sets the tags to be used
-     *
-     * @param array $tags
-     * @return MongoTaggedCache
      */
-    public function tags(array $tags)
+    public function tags(array $tags): MongoTaggedCache
     {
         return new MongoTaggedCache($this, $tags);
     }
 
     /**
      * Deletes all records with the given tag
-     *
-     * @param array $tags
-     * @return void
      */
-    public function flushByTags(array $tags)
+    public function flushByTags(array $tags): void
     {
         foreach ($tags as $tag) {
             $this->table()->where('tags', $tag)->delete();
@@ -166,19 +160,16 @@ class Store implements StoreInterface
 
     /**
      * Retrieve an item's expiration time from the cache by key.
-     *
-     * @param string $key
-     * @return null|float|int
      */
-    public function getExpiration($key)
+    public function getExpiration($key): ?float
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        if (empty($cacheData['expiration'])) {
+        if (empty($cacheData->expiration)) {
             return null;
         }
 
-        $expirationSeconds = $cacheData['expiration']->toDateTime()->getTimestamp();
+        $expirationSeconds = $cacheData->expiration->toDateTime()->getTimestamp();
 
         return round($expirationSeconds - $this->currentTime());
     }
@@ -199,7 +190,7 @@ class Store implements StoreInterface
      * @param string $key
      * @return string
      */
-    protected function getKeyWithPrefix(string $key)
+    protected function getKeyWithPrefix(string $key): string
     {
         return $this->getPrefix() . $key;
     }
@@ -210,7 +201,7 @@ class Store implements StoreInterface
      * @param string $key
      * @param int $value
      * @param Closure $callback
-     * @return int|bool
+     * @return false|mixed
      */
     protected function incrementOrDecrement($key, $value, Closure $callback)
     {

@@ -4,7 +4,7 @@ namespace ForFit\Mongodb\Cache\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use \MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\ReadPreference;
 
 /**
  * Create indexes for the cache collection
@@ -12,30 +12,18 @@ use \MongoDB\Driver\ReadPreference;
 class MongodbCacheIndexTags extends Command
 {
 
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'mongodb:cache:index_tags';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    /** The console command description. */
     protected $description = 'Create indexes on the tags column of mongodb `cache` collection';
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    /** Execute the console command.*/
+    public function handle(): void
     {
         $cacheCollectionName = config('cache')['stores']['mongodb']['table'];
 
-        DB::connection('mongodb')->getMongoDB()->command([
+        DB::connection('mongodb')->getDatabase()->command([
             'createIndexes' => $cacheCollectionName,
             'indexes' => [
                 [
@@ -45,7 +33,7 @@ class MongodbCacheIndexTags extends Command
                 ],
             ]
         ], [
-            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY)
+            'readPreference' => new ReadPreference(ReadPreference::PRIMARY)
         ]);
     }
 }
