@@ -59,7 +59,18 @@ class Store implements StoreInterface
     {
         $cacheData = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        return $cacheData ? unserialize($cacheData['value']) : null;
+        if ($cacheData === null) {
+            return null;
+        }
+
+        if (isset($cacheData['expiration']) && $cacheData['expiration'] instanceof UTCDateTime) {
+            $expirationTimestamp = $cacheData['expiration']->toDateTime()->getTimestamp();
+            if ($expirationTimestamp <= $this->currentTime()) {
+                return null; // Item has expired
+            }
+        }
+
+        return unserialize($cacheData['value']);
     }
 
     /**
@@ -152,9 +163,12 @@ class Store implements StoreInterface
     }
 
     /**
-     * Deletes all records with the given tag
+     * Deletes all cache items matching ANY of the specified tags.
      *
-     * @param array $tags
+     * If an item is tagged with ['tag1', 'tag2'], and this method is called with ['tag1', 'tag3'],
+     * the item will be deleted because it matches 'tag1'.
+     *
+     * @param array $tags An array of tags.
      * @return void
      */
     public function flushByTags(array $tags)
@@ -214,16 +228,44 @@ class Store implements StoreInterface
      */
     protected function incrementOrDecrement($key, $value, Closure $callback)
     {
-        $currentValue = $this->get($key);
+        $item = $this->table()->where('key', $this->getKeyWithPrefix($key))->first();
 
-        if ($currentValue === null) {
+        if ($item === null) {
             return false;
         }
 
-        $newValue = $callback($currentValue, $value);
+        $serializedOldValue = $item['value'];
+        $currentNumericValue = unserialize($serializedOldValue);
 
-        if ($this->put($key, $newValue, $this->getExpiration($key))) {
-            return $newValue;
+        if (!is_numeric($currentNumericValue)) {
+            return false;
+        }
+
+        $newNumericValue = $callback($currentNumericValue, $value);
+        $newSerializedValue = serialize($newNumericValue);
+
+        $remainingSeconds = $this->getExpiration($key);
+
+        if ($remainingSeconds === null) {
+            $remainingSeconds = 315360000; // Default to 10 years if no expiration is set
+        } elseif ($remainingSeconds <= 0) {
+            // Item has expired or is about to expire, treat as a miss
+            return false;
+        }
+
+        $expiration = ($this->currentTime() + (int)$remainingSeconds) * 1000;
+
+        $updated = $this->table()
+            ->where('key', $this->getKeyWithPrefix($key))
+            ->where('value', $serializedOldValue)
+            ->update([
+                'value' => $newSerializedValue,
+                'expiration' => new UTCDateTime($expiration),
+                'tags' => $item['tags'] ?? [],
+            ]);
+
+        if ($updated) {
+            return $newNumericValue;
         }
 
         return false;

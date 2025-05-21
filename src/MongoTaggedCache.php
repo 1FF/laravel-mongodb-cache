@@ -59,9 +59,50 @@ class MongoTaggedCache extends Repository
      */
     public function putMany(array $values, $ttl = null)
     {
-        foreach ($values as $key => $value) {
-            $this->put($key, $value, $ttl);
+        $seconds = $this->getSeconds(is_null($ttl) ? 315360000 : $ttl);
+
+        if ($seconds <= 0) {
+            $allForgotten = true;
+            foreach (array_keys($values) as $key) {
+                if (!$this->forget($key)) {
+                    $allForgotten = false; // Though forget usually returns true
+                }
+            }
+            return $allForgotten;
         }
+
+        if (empty($values)) {
+            return true;
+        }
+
+        $documents = [];
+        $expirationTimestamp = ($this->currentTime() + $seconds) * 1000;
+
+        foreach ($values as $key => $value) {
+            $documents[] = [
+                'key' => $this->itemKey($key),
+                'value' => serialize($value),
+                'expiration' => new \MongoDB\BSON\UTCDateTime($expirationTimestamp),
+                'tags' => $this->tags,
+            ];
+        }
+
+        try {
+            // The `insert` method in Jenssegers/mongodb Query/Builder returns bool
+            $result = $this->store->table()->insert($documents);
+        } catch (\Exception $e) {
+            // Log the exception or handle it as per application's error handling policy
+            // For now, assume failure means returning false
+            return false;
+        }
+
+        if ($result) {
+            foreach ($values as $key => $value) {
+                $this->event(new KeyWritten($key, $value, $seconds));
+            }
+        }
+
+        return $result;
     }
 
     /**
